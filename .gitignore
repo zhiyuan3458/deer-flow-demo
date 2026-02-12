@@ -14,9 +14,6 @@ static/browser_history/*.gif
 .venv
 venv/
 
-# Environment variables
-.env
-
 .idea/
 .langgraph_api/
 .DS_Store

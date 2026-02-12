@@ -109,20 +109,20 @@ export async function sendMessage(
     content ?? "[REPLAY]",
     {
       thread_id: THREAD_ID,
-      interrupt_feedback: interruptFeedback,
-      resources,
-      auto_accepted_plan: settings.autoAcceptedPlan,
-      enable_clarification: settings.enableClarification ?? false,
-      max_clarification_rounds: settings.maxClarificationRounds ?? 3,
-      enable_deep_thinking: settings.enableDeepThinking ?? false,
+      interrupt_feedback: interruptFeedback, // 用户对 plan 的反馈：accepted 接受 | edit_plan 编辑
+      resources, // RAG 知识库资源（@提及的文件）
+      auto_accepted_plan: settings.autoAcceptedPlan, // true=跳过人工确认，直接执行计划
+      enable_clarification: settings.enableClarification ?? false, // 多轮澄清：模糊问题先追问再规划
+      max_clarification_rounds: settings.maxClarificationRounds ?? 3, // 澄清最大轮数
+      enable_deep_thinking: settings.enableDeepThinking ?? false, // 启用推理模型（深度思考）
       enable_background_investigation:
-        settings.enableBackgroundInvestigation ?? true,
-      enable_web_search: settings.enableWebSearch ?? true,
-      max_plan_iterations: settings.maxPlanIterations,
-      max_step_num: settings.maxStepNum,
-      max_search_results: settings.maxSearchResults,
-      report_style: settings.reportStyle,
-      mcp_settings: settings.mcpSettings,
+        settings.enableBackgroundInvestigation ?? true, // 规划前先做背景调查（预搜索）
+      enable_web_search: settings.enableWebSearch ?? true, // 是否启用网页搜索，false 仅用本地 RAG
+      max_plan_iterations: settings.maxPlanIterations, // 计划最大迭代次数（规划→执行→重规划）
+      max_step_num: settings.maxStepNum, // 单次计划最大步骤数
+      max_search_results: settings.maxSearchResults, // 单次搜索返回结果数
+      report_style: settings.reportStyle, // 报告风格：academic|popular_science|news|social_media|strategic_investment
+      mcp_settings: settings.mcpSettings, // MCP 服务器配置（扩展工具）
     },
     options,
   );

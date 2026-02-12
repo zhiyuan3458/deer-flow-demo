@@ -282,7 +282,7 @@ You can disable web search in your `conf.yaml` file:
 
 ```yaml
 # Disable web search (use only local RAG)
-ENABLE_WEB_SEARCH: false
+ENABLE_WEB_SEARCH: true
 ```
 
 Or via API request parameter:

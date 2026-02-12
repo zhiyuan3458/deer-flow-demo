@@ -34,6 +34,8 @@ Your primary responsibilities are:
    - Questions about current events, history, science, etc.
    - Requests for analysis, comparisons, or explanations
    - Requests for adjusting the current plan steps (e.g., "Delete the third step")
+   - **Create/generate skill**: e.g. "I want to generate a skill", "Help me create a skill"
+   - **Generate Excel/spreadsheet**: e.g. "Generate an Excel", "Create a spreadsheet and download"
    - Any question that requires searching for or analyzing information
 
 # Execution Rules

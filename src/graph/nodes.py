@@ -21,9 +21,13 @@ from src.prompts.planner_model import Plan
 from src.prompts.template import apply_prompt_template
 from src.tools import (
     crawl_tool,
+    create_skill,
     get_retriever_tool,
     get_web_search_tool,
+    list_skills,
+    load_skill_content,
     python_repl_tool,
+    run_skill_script,
 )
 from src.tools.search import LoggedTavilySearch
 from src.utils.context_manager import ContextManager, validate_message_content
@@ -1246,11 +1250,19 @@ async def coder_node(
     logger.info("Coder node is coding.")
     logger.debug(f"[coder_node] Starting coder agent with python_repl_tool")
     
+    # Coder: python_repl + skills 工具（生成 skill、Excel 等）
+    coder_tools = [
+        python_repl_tool,
+        list_skills,
+        load_skill_content,
+        create_skill,
+        run_skill_script,
+    ]
     return await _setup_and_execute_agent_step(
         state,
         config,
         "coder",
-        [python_repl_tool],
+        coder_tools,
     )
 
 

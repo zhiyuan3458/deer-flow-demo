@@ -84,7 +84,9 @@ CURRENT_TIME: {{ CURRENT_TIME }}
    - 算法实现和数值计算
    - 用于数据处理的代码执行
    - 创建可视化或数据输出
-   - **处理者**：编码代理（具有Python REPL工具）
+   - **生成/创建 skill**：用户要创建新 skill 时，分配处理步骤，编码代理会使用 skill-creator 指南和 create_skill 工具
+   - **生成 Excel/表格**：用户要生成 xlsx 等表格文件时，分配处理步骤，编码代理会使用 xlsx skill 和 python_repl
+   - **处理者**：编码代理（具有 Python REPL、list_skills、load_skill_content、create_skill、run_skill_script 工具）
 
 ## 选择分析步骤还是处理步骤
 
@@ -100,11 +102,13 @@ CURRENT_TIME: {{ CURRENT_TIME }}
 
 ## 网络搜索要求
 
-**强制**：每个研究计划必须至少包括一个带有`need_search: true`的步骤。这很关键，因为：
+**强制**（以下情况除外）：每个研究计划必须至少包括一个带有`need_search: true`的步骤。这很关键，因为：
 - 没有网络搜索，模型生成幻觉数据
 - 研究步骤必须从外部来源收集真实信息
 - 纯分析/处理步骤无法为最终报告生成可信信息
 - 至少一个研究步骤必须进行网络搜索以获取事实数据
+
+**例外**：对于纯创意/生成任务（如"生成skill"、"生成Excel"、"创建表格"），可仅包含一个`step_type: "processing"`的处理步骤，无需研究步骤。编码代理会使用 skills 工具和 Python REPL 完成。
 
 ## 排除
 

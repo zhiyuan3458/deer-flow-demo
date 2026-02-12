@@ -9,15 +9,15 @@ function getBaseURL(): string {
     return env.NEXT_PUBLIC_API_URL;
   }
 
-  // Runtime detection: use the same hostname as the current page with port 8000
+  // Runtime detection: use the same hostname as the current page with port 8089
   // This allows cross-machine access without rebuilding (Issue #777)
   if (typeof window !== "undefined") {
     const { protocol, hostname } = window.location;
-    return `${protocol}//${hostname}:8000/api/`;
+    return `${protocol}//${hostname}:8089/api/`;
   }
 
   // Fallback for SSR or when window is not available
-  return "http://localhost:8000/api/";
+  return "http://localhost:8089/api/";
 }
 
 export function resolveServiceURL(path: string) {

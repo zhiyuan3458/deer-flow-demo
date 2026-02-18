@@ -62,9 +62,13 @@ def get_latest_user_message(messages: list[Any]) -> tuple[Any, str]:
     return None, ""
 
 
+// 举个例子
+// 用户：研究 ai 领域；ai：什么领域；用户：医疗；ai：医疗哪方面的；用户：硬件。
+// 那么这个函数作用是，head（主题）研究 ai 领域，tail（主题）医疗、硬件。
+// 所以，f"{head} - {', '.join(tail)}" 就是：研究 ai 领域 - 医疗、硬件。
 def build_clarified_topic_from_history(
     clarification_history: list[str],
-) -> tuple[str, list[str]]:
+) -> tuple[str, list[str]]: // 这个元组表示，只能返回第一个元素是 str，第二个元素是 list[str]的元组。
     """Construct clarified topic string from an ordered clarification history."""
     sequence = [item for item in clarification_history if item]
     if not sequence:
@@ -72,6 +76,7 @@ def build_clarified_topic_from_history(
     if len(sequence) == 1:
         return sequence[0], sequence
     head, *tail = sequence
+    // 研究 ai 领域 - 医疗、硬件。【主题】- 【子主题，子主题，...】
     clarified_string = f"{head} - {', '.join(tail)}"
     return clarified_string, sequence
 

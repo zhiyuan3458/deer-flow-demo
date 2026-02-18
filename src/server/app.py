@@ -649,26 +649,26 @@ async def _stream_graph_events(
 
 
 async def _astream_workflow_generator(
-    messages: List[dict],
-    thread_id: str,
-    resources: List[Resource],
-    max_plan_iterations: int,
-    max_step_num: int,
-    max_search_results: int,
-    auto_accepted_plan: bool,
-    interrupt_feedback: str,
-    mcp_settings: dict,
-    enable_background_investigation: bool,
-    enable_web_search: bool,
-    report_style: ReportStyle,
-    enable_deep_thinking: bool,
-    enable_clarification: bool,
-    max_clarification_rounds: int,
-    locale: str = "en-US",
-    interrupt_before_tools: Optional[List[str]] = None,
+    messages: List[dict], // 用户消息列表
+    thread_id: str, // 会话线程 id
+    resources: List[Resource], // RAG资源列表
+    max_plan_iterations: int, // 计划最大迭代次数
+    max_step_num: int, // 单次计划最大步骤数
+    max_search_results: int, // 搜索返回的最多结果数
+    auto_accepted_plan: bool, // 是否自动接受计划
+    interrupt_feedback: str, // 用户对 plan 的反馈：accepted 接受 | edit_plan 编辑
+    mcp_settings: dict, // MCP 服务器配置（扩展工具）
+    enable_background_investigation: bool, // 是否启用背景调查（预搜索）
+    enable_web_search: bool, // 是否启用网页搜索，false 仅用本地 RAG
+    report_style: ReportStyle, // 报告风格：academic|popular_science|news|social_media|strategic_investment
+    enable_deep_thinking: bool, // 是否启用推理模型（深度思考）
+    enable_clarification: bool, // 是否启用澄清（多轮澄清）
+    max_clarification_rounds: int, // 澄清最大轮数
+    locale: str = "en-US", // 语言区域
+    interrupt_before_tools: Optional[List[str]] = None, // 工具调用前是否中断列表
 ):
     safe_thread_id = sanitize_thread_id(thread_id)
-    safe_feedback = sanitize_log_input(interrupt_feedback) if interrupt_feedback else ""
+    safe_feedback = sanitize_log_input(interrupt_feedback) if interrupt_feedback else "" // 用户对 plan 的反馈：accepted 接受 | edit_plan 编辑
     logger.debug(
         f"[{safe_thread_id}] _astream_workflow_generator starting: "
         f"messages_count={len(messages)}, "
@@ -683,12 +683,17 @@ async def _astream_workflow_generator(
         if isinstance(message, dict) and "content" in message:
             safe_content = sanitize_user_content(message.get('content', ''))
             logger.debug(f"[{safe_thread_id}] Sending initial message to client: {safe_content}")
-            _process_initial_messages(message, thread_id)
+            _process_initial_messages(message, thread_id) // 启用了 checkpoint_saver 后，需要保存初始消息(消息持久化到数据库)
 
     logger.debug(f"[{safe_thread_id}] Reconstructing clarification history")
+    // 保留role 为 user 的对话
+    // 比如，用户：研究 ai 领域；ai：什么领域；用户：医疗；ai：医疗哪方面的；用户：硬件。
+    // 那么实际上下面这段代码，就是把用户说过的话过滤出来，也就是：[ai 领域、医疗、硬件]。
     clarification_history = reconstruct_clarification_history(messages)
 
     logger.debug(f"[{safe_thread_id}] Building clarified topic from history")
+    // 返回的是：clarified_topic：研究 ai 领域 - 医疗、硬件。（【主题】- 【子主题，子主题，...】）
+    // clarification_history：[ai 领域、医疗、硬件]。 role 为 user 的对话内容 list。
     clarified_topic, clarification_history = build_clarified_topic_from_history(
         clarification_history
     )
@@ -701,21 +706,21 @@ async def _astream_workflow_generator(
     logger.debug(f"[{safe_thread_id}] Preparing workflow input")
     workflow_input = {
         "messages": messages,
-        "plan_iterations": 0,
+        "plan_iterations": 0, // 计划最大迭代次数
         "final_report": "",
         "current_plan": None,
         "observations": [],
         "auto_accepted_plan": auto_accepted_plan,
-        "enable_background_investigation": enable_background_investigation,
-        "research_topic": latest_message_content,
-        "clarification_history": clarification_history,
-        "clarified_research_topic": clarified_research_topic,
-        "enable_clarification": enable_clarification,
-        "max_clarification_rounds": max_clarification_rounds,
-        "locale": locale,
+        "enable_background_investigation": enable_background_investigation, // 是否启用背景调查（预搜索）
+        "research_topic": latest_message_content, // 最新消息内容
+        "clarification_history": clarification_history, // 澄清历史
+        "clarified_research_topic": clarified_research_topic, // 澄清后的主题
+        "enable_clarification": enable_clarification, // 是否启用澄清（多轮澄清）
+        "max_clarification_rounds": max_clarification_rounds, // 澄清最大轮数
+        "locale": locale, // 语言区域
     }
 
-    if not auto_accepted_plan and interrupt_feedback:
+    if not auto_accepted_plan and interrupt_feedback: // 如果用户没有接受计划，并且有反馈，则创建恢复命令（代表用户不接受当前返回的计划，并且有修改计划的需求）
         logger.debug(f"[{safe_thread_id}] Creating resume command with interrupt_feedback: {safe_feedback}")
         resume_msg = f"[{interrupt_feedback}]"
         if messages:
